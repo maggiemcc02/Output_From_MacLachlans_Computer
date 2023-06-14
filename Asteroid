@@ -1,0 +1,14 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+x = np.linspace(-100, 100, 1000)
+
+y_cos = np.cos(x)
+y_sin = np.sin(x)
+y_tan = np.tan(x)
+
+plt.plot(x, y_cos, label = 'cos(x)')
+plt.plot(x, y_sin, label = 'sin(x)')
+plt.plot(x, y_tan, label = 'tan(x)')
+plt.savefig('sin_cos_tan')
+
