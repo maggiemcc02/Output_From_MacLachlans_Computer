@@ -119,7 +119,7 @@ for i in range(len(chosen_sols)):
 
 
 
-cont_defl_results = continued_deflation(eps_0, eps_f, delta_eps, chosen_sols, chosen_mesh, guess, grid, uni_grid, M_calc_optimal_L2, boor_tol, physical_tol, N, alpha, power )
+cont_defl_results = continued_deflation(eps_0, eps_f, delta_eps, chosen_sols, chosen_mesh, guess, mesh, uni_grid, M_calc_optimal_L2, boor_tol, physical_tol, N, alpha, power, u_0, u_n, guess_list )
 
 
 

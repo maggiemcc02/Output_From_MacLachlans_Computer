@@ -33,7 +33,7 @@ from coupling import *
 
 
 
-def continued_deflation(eps_0, eps_f, delta_eps,  new_sol_eps, new_mesh_eps, guess, grid, uni_grid, monitor_func, boor_tol, physical_tol, N, alpha, power):
+def continued_deflation(eps_0, eps_f, delta_eps,  new_sol_eps, new_mesh_eps, guess, grid, uni_grid, monitor_func, boor_tol, physical_tol, N, alpha, power, u_0, u_n, guess_list):
 
 
 
@@ -158,7 +158,7 @@ def continued_deflation(eps_0, eps_f, delta_eps,  new_sol_eps, new_mesh_eps, gue
 
 
 
-    new_sol_deflate, new_mesh_deflate = solution_discovery(mesh, uni_grid, guess_list, monitor_func, \
+    new_sol_deflate, new_mesh_deflate = solution_discovery(grid, uni_grid, guess_list, monitor_func, \
                                                            eps, N, damping, alpha, power, new_sol_eps, new_mesh_eps, call_num, boor_tol, physical_tol, u_0, u_n)
     
 

@@ -109,15 +109,14 @@ def solution_discovery(mesh, uni_grid, guess_list, monitor_func, \
   chosen_solutions = results[max_ind][1]
   chosen_meshes = results[max_ind][2]
 
-  #for i in range(len(chosen_solutions)):
+  for i in range(len(chosen_solutions)):
 
-    #plt.plot(chosen_meshes[i], chosen_solutions[i], 'blue')
-    #plt.plot(chosen_meshes[i], [0 for j in range(len(chosen_meshes[i]))], marker = '|', color = 'darkblue')
-    #plt.xlabel('mesh')
-    #plt.ylabel('solution approx')
-    #plt.title('Solution '+str(i+1)+ ' for call number ' + str(call_num) +' of Solution Discovery')
-    #plt.savefig('Solution_' + str(i+1) + "_for_call_" + str(call_num))
-    #plt.plot
+    plt.plot(chosen_meshes[i], chosen_solutions[i], 'blue')
+    plt.plot(chosen_meshes[i], [0 for j in range(len(chosen_meshes[i]))], marker = '|', color = 'darkblue')
+    plt.xlabel('mesh')
+    plt.ylabel('solution approx')
+    plt.title('Solution '+ str(i+1) + ' at eps = '+  str(eps))
+    plt.savefig('/output_plots/Solution_' + str(i+1) + " at eps = " + str(eps) + ".pdf")
 
 
   # return that chosen solution set
