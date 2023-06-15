@@ -3,6 +3,18 @@
 # In this file I have my continued deflation code
 
 
+
+# import tools
+
+import math
+import numpy as np
+from scipy.linalg import solve_banded
+from numpy.linalg import norm
+import matplotlib.pyplot as plt
+from scipy.interpolate import interp1d
+
+# import files
+
 from automatic_solver import *
 from deflation import *
 from physical_solver import *
@@ -21,7 +33,7 @@ from coupling import *
 
 
 
-def continued_deflation(eps_0, eps_f, delta_eps,  new_sol_eps, new_mesh_eps, guess, grid, uni_grid, monitor_func):
+def continued_deflation(eps_0, eps_f, delta_eps,  new_sol_eps, new_mesh_eps, guess, grid, uni_grid, monitor_func, boor_tol, physical_tol, N, alpha, power):
 
 
 
@@ -102,7 +114,7 @@ def continued_deflation(eps_0, eps_f, delta_eps,  new_sol_eps, new_mesh_eps, gue
       new_sol, new_mesh = automatic_solver_interpU(F, JF, mesh_eps[i], uni_grid,\
                                                   guesses[i], monitor_func, solutions,\
                                                   sol_mesh, boor_tol, physical_tol,\
-                                                  eps, N, alpha, power)
+                                                   eps, N, alpha, power, u_0, u_n)
     
       
 
@@ -147,7 +159,7 @@ def continued_deflation(eps_0, eps_f, delta_eps,  new_sol_eps, new_mesh_eps, gue
 
 
     new_sol_deflate, new_mesh_deflate = solution_discovery(mesh, uni_grid, guess_list, monitor_func, \
-                                                           eps, N, damping, alpha, power, new_sol_eps, new_mesh_eps, call_num)
+                                                           eps, N, damping, alpha, power, new_sol_eps, new_mesh_eps, call_num, boor_tol, physical_tol, u_0, u_n)
     
 
 

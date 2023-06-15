@@ -4,6 +4,15 @@
 # This code makes use of all initial guesses in my initial guess pool
 # to discover solutions
 
+# import tools
+
+import math
+import numpy as np
+from scipy.linalg import solve_banded
+from numpy.linalg import norm
+import matplotlib.pyplot as plt
+from scipy.interpolate import interp1d
+
 
 
 # imports
@@ -24,7 +33,7 @@ from coupling import *
 
 
 def solution_discovery(mesh, uni_grid, guess_list, monitor_func, \
-                                                           eps, N, damping, alpha, power, found_sols, found_mesh, call_num): 
+                                                           eps, N, damping, alpha, power, found_sols, found_mesh, call_num, boor_tol, physical_tol, u_0, u_n): 
   
   
   results = []
@@ -64,7 +73,7 @@ def solution_discovery(mesh, uni_grid, guess_list, monitor_func, \
     guess = guess_list[m]
 
 
-    attempt = ultimate_coupling_unigrid(mesh, uni_grid, guess, monitor_func, E, N, damping, alpha, power, solutions, sol_mesh)
+    attempt = ultimate_coupling_unigrid(mesh, uni_grid, guess, monitor_func, eps, N, damping, alpha, power, solutions, sol_mesh, boor_tol, physical_tol, u_0, u_n)
 
     results.append([len(attempt[0]), attempt[0], attempt[1]]) # number of solutions, solutions, meshes
 
@@ -97,21 +106,18 @@ def solution_discovery(mesh, uni_grid, guess_list, monitor_func, \
   print('We choose the solution set for initial guess', max_ind + 1)
   print()
 
-
-  # plot the chosen solution set
-
   chosen_solutions = results[max_ind][1]
   chosen_meshes = results[max_ind][2]
 
-  for i in range(len(chosen_solutions)):
+  #for i in range(len(chosen_solutions)):
 
-    plt.plot(chosen_meshes[i], chosen_solutions[i], 'blue')
-    plt.plot(chosen_meshes[i], [0 for j in range(len(chosen_meshes[i]))], marker = '|', color = 'darkblue')
-    plt.xlabel('mesh')
-    plt.ylabel('solution approx')
-    plt.title('Solution '+str(i+1)+ ' for call number ' + str(call_num) +' of Solution Discovery')
+    #plt.plot(chosen_meshes[i], chosen_solutions[i], 'blue')
+    #plt.plot(chosen_meshes[i], [0 for j in range(len(chosen_meshes[i]))], marker = '|', color = 'darkblue')
+    #plt.xlabel('mesh')
+    #plt.ylabel('solution approx')
+    #plt.title('Solution '+str(i+1)+ ' for call number ' + str(call_num) +' of Solution Discovery')
     #plt.savefig('Solution_' + str(i+1) + "_for_call_" + str(call_num))
-    plt.plot
+    #plt.plot
 
 
   # return that chosen solution set

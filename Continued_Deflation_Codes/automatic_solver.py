@@ -3,6 +3,16 @@
 # In this file I have my automatic solver
 # The automatic solver is the coupling of the physical solver and de Boor
 
+# import tools
+
+import math
+import numpy as np
+from scipy.linalg import solve_banded
+from numpy.linalg import norm
+import matplotlib.pyplot as plt
+from scipy.interpolate import interp1d
+
+
 
 from automatic_solver import *
 from deflation import *
@@ -16,7 +26,7 @@ from numerical_integration import *
 
 
 
-def automatic_solver_interpU(System, Jacobian, mesh, uni_grid, guess, mesh_density_calc, solutions, sol_mesh, boor_tol, physical_tol, E, N, alpha, power , finding_sol3 = False, damping = True, damp_guess = 0.5):
+def automatic_solver_interpU(System, Jacobian, mesh, uni_grid, guess, mesh_density_calc, solutions, sol_mesh, boor_tol, physical_tol, E, N, alpha, power ,u_0, u_n, finding_sol3 = False, damping = True, damp_guess = 0.5):
 
 
   """
@@ -47,8 +57,6 @@ def automatic_solver_interpU(System, Jacobian, mesh, uni_grid, guess, mesh_densi
 
   """
 
-
-  global physical_iters
   physical_iters = []
 
   # print()
@@ -57,7 +65,7 @@ def automatic_solver_interpU(System, Jacobian, mesh, uni_grid, guess, mesh_densi
   # print('_'*50)
   # print()
 
-  U = new_physical_solver(System, Jacobian, mesh, k, k_prime, guess, u_0, u_n, E, physical_tol, 100, solutions, sol_mesh, alpha, power)
+  U = new_physical_solver(System, Jacobian, mesh, k, k_prime, guess, u_0, u_n, E, physical_tol, 100, solutions, sol_mesh, alpha, power, physical_iters)
 
   # set new initial guess as U
 
@@ -146,7 +154,7 @@ def automatic_solver_interpU(System, Jacobian, mesh, uni_grid, guess, mesh_densi
 
 
     new_U = new_physical_solver( System, Jacobian, mesh, k, k_prime, guess,\
-                            u_0, u_n, E, physical_tol, 100, solutions, sol_mesh, alpha, power)
+                                 u_0, u_n, E, physical_tol, 100, solutions, sol_mesh, alpha, power, physical_iters)
 
     # set new_U as U
 

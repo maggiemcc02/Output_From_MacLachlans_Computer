@@ -29,7 +29,7 @@ from solution_discovery_code import *
 from initial_guess_pool import *
 from L2_optimal import *
 from physical_solver import *
-from solution_and_jacobian import *
+from system_and_jacobian import *
 
 
 
@@ -51,6 +51,7 @@ boor_tol = 1e-8
 damping = True
 
 eps_0 = 0.05
+eps = eps_0
 eps_f = 0.01
 delta_eps = 0.01
 
@@ -92,11 +93,33 @@ for j in range(5):
 
 
 chosen_sols, chosen_mesh = solution_discovery(mesh, uni_grid, guess_list, M_calc_optimal_L2, \
-                                                           E, N, damping, alpha, power, [], [], call_num = 0)
+                                                           E, N, damping, alpha, power, [], [], 0, boor_tol, physical_tol, u_0, u_n)
+
+
+# save the chosen solutions
+
+for i in range(len(chosen_sols)):
+
+  plt.plot(chosen_mesh[i], chosen_sols[i], 'blue')
+  plt.plot(chosen_mesh[i], [0 for j in range(len(chosen_mesh[i]))], 'blue', marker = "|")
+  plt.title('Solution ' + str(i+1) +  "found at eps = " + str(E))
+  plt.xlabel('grid')
+  plt.ylabel('u(x) approximation')
+  plt.show()
 
 
 
 
+
+
+
+
+
+# now lets call continued deflation
+
+
+
+cont_defl_results = continued_deflation(eps_0, eps_f, delta_eps, chosen_sols, chosen_mesh, guess, grid, uni_grid, M_calc_optimal_L2, boor_tol, physical_tol, N, alpha, power )
 
 
 

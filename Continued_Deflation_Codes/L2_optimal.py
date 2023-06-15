@@ -5,6 +5,16 @@
 # the mesh density function that minimizes the H1 norm
 
 
+# import tools
+
+import math
+import numpy as np
+from scipy.linalg import solve_banded
+from numpy.linalg import norm
+import matplotlib.pyplot as plt
+from scipy.interpolate import interp1d
+
+
 from numerical_integration import *
 
 

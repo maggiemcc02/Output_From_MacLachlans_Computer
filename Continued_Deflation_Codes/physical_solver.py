@@ -2,10 +2,19 @@
 # Here I will include my physical solver codes
 
 # In particular I have
-# tridiagonal matrix code,
 # line search code
 # perturbation codes
 # physical solver
+
+
+# import tools
+
+import math
+import numpy as np
+from scipy.linalg import solve_banded
+from numpy.linalg import norm
+import matplotlib.pyplot as plt
+from scipy.interpolate import interp1d
 
 
 
@@ -13,25 +22,6 @@
 
 from deflation import *
 from system_and_jacobian import *
-
-
-
-
-
-# tridiagonal matrix code
-
-
-
-
-def tridiag(a, b, c, k1 = -1, k2 = 0, k3 = 1):
-  """
-  a = lower diag
-  b = main diag
-  c = upper diag
-
-  """
-
-  return np.diag(a, k1) + np.diag(b, k2) + np.diag(c, k3)
 
 
 
@@ -53,7 +43,7 @@ def tridiag(a, b, c, k1 = -1, k2 = 0, k3 = 1):
 
 
 def inv_quad_interp_line_search(U_old, delta, a_old, a, System, smile, J_xc, F_xc, \
-                            mesh, mesh_space, k, k_prime, u_0, u_n, E, solution, sol_mesh, power, alpha):
+                            mesh, mesh_space, k, k_prime, u_0, u_n, E, solutions, sol_mesh, power, alpha):
   
 
 
@@ -582,7 +572,7 @@ def perturb_plots(J_xc, F_xc, smile, System, U_old, mesh, mesh_space,\
 
 
 
-def new_physical_solver(System, Jacobian, grid, k, k_prime, U0, u_0, u_n, E, tol, max_iter, solutions, sol_mesh, alpha, power):
+def new_physical_solver(System, Jacobian, grid, k, k_prime, U0, u_0, u_n, E, tol, max_iter, solutions, sol_mesh, alpha, power, physical_iters,  damping = True):
   """
   Approximates the solution to a specific nonlinear system
   Parameters
@@ -634,8 +624,6 @@ def new_physical_solver(System, Jacobian, grid, k, k_prime, U0, u_0, u_n, E, tol
     print('NOT going to Damp')
     print()
 
-
-  global physical_iters
 
   # Remove the first and last entries of the grid
   # this is because we already have the solution

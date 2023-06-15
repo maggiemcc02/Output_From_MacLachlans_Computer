@@ -1,7 +1,14 @@
 
 # In this file I define my equidistribution code
 
+# import tools
 
+import math
+import numpy as np
+from scipy.linalg import solve_banded
+from numpy.linalg import norm
+import matplotlib.pyplot as plt
+from scipy.interpolate import interp1d
 
 
 

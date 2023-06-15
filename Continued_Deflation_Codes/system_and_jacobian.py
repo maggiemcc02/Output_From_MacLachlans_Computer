@@ -2,6 +2,15 @@
 # I will also define the test problem
 
 
+# import tools
+
+import math
+import numpy as np
+from scipy.linalg import solve_banded
+from numpy.linalg import norm
+import matplotlib.pyplot as plt
+from scipy.interpolate import interp1d
+
 
 
 
@@ -16,6 +25,21 @@ def k(u, t):
 def k_prime(u, t):
   return 3*u**2 - 2*u*t + (-10*u + 3) / 2 + t
 
+
+
+# tridiagonal matrix code
+
+
+
+def tridiag(a, b, c, k1 = -1, k2 = 0, k3 = 1):
+  """
+  a = lower diag
+  b = main diag
+  c = upper diag
+
+  """
+
+  return np.diag(a, k1) + np.diag(b, k2) + np.diag(c, k3)
 
 
 

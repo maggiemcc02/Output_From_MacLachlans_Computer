@@ -5,6 +5,16 @@
 # we can find multiple solutions
 
 
+# import tools
+
+import math
+import numpy as np
+from scipy.linalg import solve_banded
+from numpy.linalg import norm
+import matplotlib.pyplot as plt
+from scipy.interpolate import interp1d
+
+
 
 from automatic_solver import *
 from deflation import *
@@ -18,7 +28,7 @@ from numerical_integration import *
 
 
 
-def ultimate_coupling_unigrid( grid, uni_grid, guess, mesh_density_calc, E, N,  damping, alpha, power, solutions, sol_mesh):
+def ultimate_coupling_unigrid( grid, uni_grid, guess, mesh_density_calc, E, N,  damping, alpha, power, solutions, sol_mesh, boor_tol, physical_tol, u_0, u_n):
 
 
   loop = True
@@ -39,7 +49,7 @@ def ultimate_coupling_unigrid( grid, uni_grid, guess, mesh_density_calc, E, N,  
     print()
 
 
-    sol, new_mesh = automatic_solver_interpU(F, JF, grid, uni_grid, guess, mesh_density_calc, solutions, sol_mesh, boor_tol, physical_tol, E, N, alpha, power)
+    sol, new_mesh = automatic_solver_interpU(F, JF, grid, uni_grid, guess, mesh_density_calc, solutions, sol_mesh, boor_tol, physical_tol, E, N, alpha, power, u_0, u_n)
 
     if type(sol) == str:
       loop = False
@@ -90,3 +100,6 @@ def ultimate_coupling_unigrid( grid, uni_grid, guess, mesh_density_calc, E, N,  
     # plt.show()
     # print()
     # print()
+
+  
+  return solutions, sol_mesh

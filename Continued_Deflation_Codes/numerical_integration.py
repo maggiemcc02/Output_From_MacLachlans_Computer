@@ -4,6 +4,16 @@
 # In particular, I have trapezoidal and Riemann sum methods
 
 
+# import tools
+
+import math
+import numpy as np
+from scipy.linalg import solve_banded
+from numpy.linalg import norm
+import matplotlib.pyplot as plt
+from scipy.interpolate import interp1d
+
+
 # composite, nonuniform, trapezoidal rule
 
 def trap_nonuni(f_vals, x_vals):
