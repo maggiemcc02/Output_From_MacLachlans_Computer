@@ -89,11 +89,6 @@ def automatic_solver_interpU(System, Jacobian, mesh, uni_grid, guess, mesh_densi
   global iter
   iter = 1
 
-  # print()
-  # print('_'*50)  
-  # print('       -  Now in Physical + de Boor loop  -      ')
-  # print('_'*50)  
-  # print()
 
   while (loop and (iter < 100)): 
 
@@ -165,12 +160,24 @@ def automatic_solver_interpU(System, Jacobian, mesh, uni_grid, guess, mesh_densi
       print("The physical solver failed so we are 'out' of solutions")
       return "yikes", []
 
+
+  # check if we diverged
+
+  if iter >= 100:
+
+    print('We have diverged in the physical + de Boor loop')
+    print()
+    print()
+    return 'yikes', []
+
   # create final grid 
 
-  final_mesh = []
-  for i in range(len(mesh)):
-    final_mesh.append(mesh[i][0])
-  final_mesh = np.array([final_mesh]).T
+  #final_mesh = []
+  #for i in range(len(mesh)):
+    #final_mesh.append(mesh[i][0])
+  #final_mesh = np.array([final_mesh]).T
+
+  final_mesh = mesh
 
   # how many iterations?
 

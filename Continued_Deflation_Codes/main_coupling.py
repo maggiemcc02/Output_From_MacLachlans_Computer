@@ -12,8 +12,11 @@ import math
 import numpy as np
 from scipy.linalg import solve_banded
 from numpy.linalg import norm
-import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg') 
+import matplotlib.pyplot as plt 
 from scipy.interpolate import interp1d
+import os
 
 
 # import files
@@ -52,8 +55,8 @@ damping = True
 
 eps_0 = 0.05
 eps = eps_0
-eps_f = 0.01
-delta_eps = 0.01
+eps_f = 1e-3
+delta_eps = 1e-3
 
 # set grids
 
@@ -69,6 +72,9 @@ uni_grid = np.array([grid]).T
 guess_list = []
 
 guesses = [initial_guess_1, initial_guess_2, initial_guess_3, initial_guess_4, initial_guess_5]
+
+#guesses = [initial_guess_1, initial_guess_2]
+
 
 for j in range(5):
 
@@ -98,19 +104,39 @@ chosen_sols, chosen_mesh = solution_discovery(mesh, uni_grid, guess_list, M_calc
 
 # save the chosen solutions
 
+
+# create the file path
+
+my_path = '/home/margaretam/github_output/Output_From_MacLachlans_Computer/Continued_Deflation_Codes'
+
+
+print('My path is', my_path)
+
 for i in range(len(chosen_sols)):
 
+  str_eps_i = str(E)
+
+  str_eps = str_eps_i.replace('0.', '')
+
+  my_plot = '/output_plots/solution_' + str(i+1) + '_at_eps_' + str_eps + '.pdf'
+
+  plt.figure()
   plt.plot(chosen_mesh[i], chosen_sols[i], 'blue')
   plt.plot(chosen_mesh[i], [0 for j in range(len(chosen_mesh[i]))], 'blue', marker = "|")
-  plt.title('Solution ' + str(i+1) +  "found at eps = " + str(E))
+  plt.title('Solution ' + str(i+1) +  " found at eps = " + str(E))
   plt.xlabel('grid')
   plt.ylabel('u(x) approximation')
-  plt.show()
 
+ # print('The path to save the file is', os.path.join(my_path, my_plot))
+  print("The path to save the file is", my_path + my_plot)
+  print()
 
+  # plt.savefig(os.path.join(my_path, my_plot))
+  plt.savefig(my_path + my_plot)
 
+  plt.close()
 
-
+ 
 
 
 
@@ -119,7 +145,7 @@ for i in range(len(chosen_sols)):
 
 
 
-cont_defl_results = continued_deflation(eps_0, eps_f, delta_eps, chosen_sols, chosen_mesh, guess, mesh, uni_grid, M_calc_optimal_L2, boor_tol, physical_tol, N, alpha, power, u_0, u_n, guess_list )
+cont_defl_results = continued_deflation(eps_0, eps_f, delta_eps, chosen_sols, chosen_mesh, guess, mesh, uni_grid, M_calc_optimal_L2, boor_tol, physical_tol, N, alpha, power, u_0, u_n, guess_list, damping )
 
 
 

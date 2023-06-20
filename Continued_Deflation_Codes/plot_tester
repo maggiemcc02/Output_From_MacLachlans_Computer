@@ -1,0 +1,19 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+x = np.linspace(-10, 10, 100)
+
+
+for a in range(1, 3):
+
+    print('woohoo')
+    print()
+
+    y = a * np.sin(x)
+
+    plt.figure()
+    plt.plot(x, y, label = 'a = '+str(a))
+    plt.title('a = ' + str(a))
+    plt.legend()
+    plt.savefig('plot_for_a_'+str(a)+ '.pdf')

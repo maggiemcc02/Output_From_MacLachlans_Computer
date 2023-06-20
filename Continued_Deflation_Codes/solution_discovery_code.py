@@ -10,6 +10,8 @@ import math
 import numpy as np
 from scipy.linalg import solve_banded
 from numpy.linalg import norm
+import matplotlib
+matplotlib.use('Agg') 
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 
@@ -42,22 +44,19 @@ def solution_discovery(mesh, uni_grid, guess_list, monitor_func, \
   global solutions
   global sol_mesh
 
+  solutions = []
+  sol_mesh = []
+
+  attempt = [found_sols, found_mesh]
+
 
 
 
   for m in range(len(guess_list)):
 
 
-    solutions = []
-    sol_mesh = []
-
-
-    for i in range(len(found_sols)):
-
-      solutions.append(found_sols[i])
-      sol_mesh.append(found_mesh[i])
-
-
+    solutions = attempt[0]
+    sol_mesh = attempt[1]
 
 
     # damping = True
@@ -83,46 +82,52 @@ def solution_discovery(mesh, uni_grid, guess_list, monitor_func, \
 
 
     
-  max_sols = 0
-  max_ind = 100
+  #max_sols = 0
+  #max_ind = 100
 
-  print()
-  print()
+  #print()
+  #print()
 
-  for i in range(len(results)):
+  #for i in range(len(results)):
 
-    try_max = results[i][0]
+  #try_max = results[i][0]
 
 
-    print('For initial guess', i+1, 'we found', try_max, 'solutions')
-    print()
+    #print('For initial guess', i+1, 'we found', try_max, 'solutions')
+    #print()
 
-    if try_max > max_sols:
+   # if try_max > max_sols:
 
-      max_sols = try_max
+      #max_sols = try_max
 
-      max_ind = i
+      #max_ind = i
 
-  print('We choose the solution set for initial guess', max_ind + 1)
-  print()
+  #print('We choose the solution set for initial guess', max_ind + 1)
+  #print()
 
-  chosen_solutions = results[max_ind][1]
-  chosen_meshes = results[max_ind][2]
+  #chosen_solutions = results[max_ind][1]
+  #chosen_meshes = results[max_ind][2]
 
-  for i in range(len(chosen_solutions)):
+ # for i in range(len(chosen_solutions)):
 
-    plt.plot(chosen_meshes[i], chosen_solutions[i], 'blue')
-    plt.plot(chosen_meshes[i], [0 for j in range(len(chosen_meshes[i]))], marker = '|', color = 'darkblue')
-    plt.xlabel('mesh')
-    plt.ylabel('solution approx')
-    plt.title('Solution '+ str(i+1) + ' at eps = '+  str(eps))
-    plt.savefig('/output_plots/Solution_' + str(i+1) + " at eps = " + str(eps) + ".pdf")
+
+    # create epsilon string
+
+    #eps_str_i = str(eps)
+    #eps_str = eps_str_i.replace('0.', '')
+
+    #plt.plot(chosen_meshes[i], chosen_solutions[i], 'blue')
+    #plt.plot(chosen_meshes[i], [0 for j in range(len(chosen_meshes[i]))], marker = '|', color = 'darkblue')
+    #plt.xlabel('mesh')
+    #plt.ylabel('solution approx')
+    #plt.title('Solution '+ str(i+1) + ' at eps = '+  str(eps))
+    #plt.savefig('/output_plots/Solution_' + str(i+1) + "_at_eps_" + eps_str + ".pdf")
 
 
   # return that chosen solution set
 
 
-  return chosen_solutions, chosen_meshes
+  return results[-1][-2], results[-1][-1]
 
 
 
