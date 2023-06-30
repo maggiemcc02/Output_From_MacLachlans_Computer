@@ -1,0 +1,89 @@
+# In this file we will give the simplest example from the FireDrake manual
+# In particular, we will solve
+# u = f on the unit square
+
+
+# 0) Import FireDrake
+
+from firedrake import *
+
+
+
+# 1) Start with the mesh
+
+mesh = UnitSquareMesh(10, 10)
+
+
+# create a function space on the mesh
+
+V = FunctionSpace(mesh, "CG", 1) # Largrange of degree 1 (linear)
+
+# create the test and trial functions
+
+u = TrialFunction(V)
+
+v = TestFunction(V)
+
+
+# define a function to fold the rhs f
+# we will populate this function with the x component of the coordinate field
+
+f = Function(V)
+
+x = SpatialCoordinate(mesh)
+
+f.interpolate(x[0])
+
+
+# define the bilinear and linear components of the weak problem
+
+a = u*v*dx
+
+l = f*v*dx
+
+
+# define a function to holf the solution
+
+s = Function(V)
+
+
+# solve the weak problem
+
+solve(a==l, s)
+
+
+# save it
+
+File('solution_simple_example.pvd').write(s)
+
+
+# output
+
+
+try:
+    import matplotlib.pyplot as plt
+except:
+    warning("Matplotlib not imported")
+
+try:
+
+    fig, axes = plt.subplots()
+    print('First line ok')
+    print('plt ok')
+    colours = tripcolor(s, axes = axes)
+    print('contours ok')
+    print('axes ok')
+    print('Second line ok')
+    fig.colorbar(colours)
+    fig.suptitle("solution Approximation")
+    print('Third line ok')
+    print()
+
+except Exception as e:
+    warning('Cannot plot figure. Error msg "%s"' %e)
+
+try:
+    plt.show()
+
+except Exception as e:
+    warning("Cannot show figure. Error msg: '%s'" %e)

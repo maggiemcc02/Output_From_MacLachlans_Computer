@@ -1,0 +1,93 @@
+# In this file we will go through the Double Slit experiment FireDrake tutorial
+
+
+# import firedrake
+
+from firedrake import *
+
+# create mesh
+
+mesh = Mesh("wave_tank.msh")
+
+# The function space
+
+V = FunctionSpace(mesh, 'Lagrange', 1)
+
+# The functions
+# name is used b/c it will set that name in the output file
+
+
+p = Function(V, name = "p")
+
+phi = Function(V, name = "phi")
+
+# Trial and Test functions
+
+u = TrialFunction(V)
+
+v = TestFunction(V)
+
+
+# output the initial conditions
+
+outfile = File("out.pvd")
+outfile.write(phi)
+
+
+# We create a boundary condition object
+# We have time-dependent boundary conditions so we first create a Constant to hold the current value
+
+bcval = Constant(0.0)
+bc = Dirichlet(V, bcval, 1)
+
+
+# set the time steps
+T = 10.
+dt = 0.001
+t = 0
+step = 0
+
+# indicate that we wish to perform mass-lumping in the timesteps
+
+lump_mass = True
+
+# timestepping loop
+
+while t <= T:
+
+    bcval.assign(sin(2*pi*5*t))
+
+    # step phi forward by a half step
+
+    phi -= dt / 2 * p
+
+    # step p forward
+    # this is an explicit timestepping scheme so we only have to invert a mass matrix
+    # We can either lump the mass - reduced inversion to pointwise division
+    # or we an invert using a linear solve
+
+    if lump_mass:
+
+        p += interpolate(assemble(dt * inner(nabla_grad(v), nabla_grad(phi))*dx) / assemble(v*dx), V)
+
+        bc.apply(p) # ensure that p satisfies conditions
+
+    else:
+
+        solve( u * v * dx == v * p * dx + dt * inner(grad(v), grad(phi))*dx, p, bcs = bc, solver_parameters = {'ksp_type':'cg', 'pc_type':'sor', 'pc_sor_symmetric' : True})
+
+
+    # step phi forward a second half step
+
+    phi -= dt / 2 * p
+
+
+    # add to output
+
+    t += dt
+
+    if step % 10 == 0:
+        outfile.write(phi, time=t)
+
+
+        

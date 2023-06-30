@@ -1,0 +1,114 @@
+# In this file we consider the steady-state continuity equation on an extruded mesh
+
+# Problem : grad(uq) = 0 with q = q_in on Gamma_inflow in a domain omega where u is a prescibed vector field and q is an unknown scalar field
+#           the value of q is known on the 'inflow' part of the boundary Gamma, where u is directed towards the interior of the domain
+#           q can be interpreted as the steady-state distribution of a passive tracer carried by a fluid with velocity field u
+#           The domain is [0,1] x [0, 1] x [0, 0.2]. The uniform velocity is u = (0,0,1)
+#           Gamme_inflow is the base of the cuboid and Gamma_outflow is the top.
+#           The four vertical sides can be ignored because u dot n = 0 on these faces
+
+# We use an extruded mesh where the base mesh is 20 x 20 unit square divided into triangles with 10 evenly spaced vertical layers. This gives prism shaped cells
+
+
+
+
+# import firedrake
+
+from firedrake import *
+
+# set the unit square mesh (the base)
+
+m = UnitSquareMesh(20, 20)
+
+# set the mesh
+
+mesh = ExtrudedMesh(m, layers = 10, layer_height = 0.02)
+
+
+# define the function space - piecewise constant
+
+V = FunctionSpace(mesh, "DG", 0)
+
+
+# our velocity will live in a low-order Raviart-Thomas space which is harder to construct then in the other tutorial problems
+# The horizontal and vertical componenets of the field are specified seperately. They are combined in a single element used to build a FunctionSpace
+
+
+# RT1 element on a prism
+
+W0_h = FiniteElement("RT", "triangle", 1)
+W0_v = FiniteElement("DG", "interval", 0)
+W0 = HDivElement(TensorProductElement(W0_h, W0_v))
+W1_h = FiniteElement("DG", "triangle", 0)
+W1_v = FiniteElement("CG", "interval", 1)
+W1 = HDivElement(TensorProductElement(W1_h, W1_v))
+W_elt = W0 + W1
+W = FunctionSpace(mesh, W_elt)
+
+
+
+# set the prescribed velocity field
+
+velocity = as_vector((0.0, 0.0, 1.0))
+u = project(velocity, W)
+
+# Set the boundary value on our scalar to be a simple indicator function over part of the bottom of the domain
+
+x, y, z = SpatialCoordinate(mesh)
+inflow = conditional(And(z < 0.02, x > 0.5), 1.0, -1.0)
+q_in = Function(V)
+q_in.interpolate(inflow)
+
+# Define the forms. Use un to aid the upwind terms
+
+n = FacetNormal(mesh)
+un = 0.5 * (dot(u, n) + abs(dot(u, n)))
+
+
+# Define the trial and test functions
+
+q = TrialFunction(V)
+
+phi = TestFunction(V)
+
+
+# Since we are on an extruded mesh we have several new integral types at our disposal
+# ds_b - integral over base of mesh
+# ds_t - integral over the top of mesh
+# ds_v - integral over sides of mesh
+# Interior facet integrals are split into dS_h (horizontal interior facets) and dS_v (vertical interior facets)
+
+# Velocity here is purely vertical so we omit the integral over the vertical interior facets
+
+
+a1 = -q * dot(u, grad(phi))*dx
+
+a2 = dot(jump(phi), un('+')*q('+')-un('-')*q('-'))*dS_h
+
+a3 = dot(phi, un*q)*ds_t
+
+a = a1 + a2 + a3
+
+L = -q_in * phi * dot(u, n) * ds_b
+
+
+# compute the solution
+
+out = Function(V)
+
+solve( a == L, out)
+
+
+# construct the exact solution
+
+exact = Function(V)
+exact.interpolate(conditional(x > 0.5, 1.0, -1.0))
+
+# compare
+
+assert max(abs(out.dat.data - exact.dat.data)) < 1e-10
+
+
+
+
+

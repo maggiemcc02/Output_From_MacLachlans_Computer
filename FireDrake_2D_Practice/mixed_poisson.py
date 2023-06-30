@@ -1,0 +1,94 @@
+# In this file we set up solving the mixed formulation for the Poisson Equation
+# We do so by following the Firedrake tutorial
+
+
+# import firedrake
+
+from firedrake import *
+
+# create the 32x32 unit square mesh
+
+mesh = UnitSquareMesh(32, 32)
+
+# A stable choice of function spaces for our problem is the combo of order k BDM elements and order k-1 DG elements
+# We use k=1 and combine the BDM and DG spaces into a mixed function space W
+
+BDM = FunctionSpace(mesh, "BDM", 1)
+DG = FunctionSpace(mesh, "DG", 0)
+W = BDM * DG
+
+
+# test and trial functions for the subspace
+
+sigma, u = TrialFunctions(W)
+tau, v = TestFunctions(W)
+
+# declare the source  function f over the DG space and initialize it with the chosen RHs function value
+
+x,y = SpatialCoordinate(mesh)
+f = Function(DG).interpolate( 10 * exp(-(pow(x-0.5, 2) + pow(y-0.5, 2)) / 0.02))
+
+# After droppinh the vanishing boundary term on the RHS, the bilinear and linear forms are
+
+a = (dot(sigma, tau) + div(tau)*u + div(sigma)*v) * dx
+L = -f * v * dx
+
+
+# declare the Dirichlet conditions on the BDM space on the top and bottom of the domain
+
+bc0 = DirichletBC(W.sub(0), as_vector([0.0, -sin(5*x)]), 3)
+bc1 = DirichletBC(W.sub(0), as_vector([0.0, sin(5*x)]), 4)
+
+# note that it is necessary to apply these BC"s to the first subspace of the mixed function space using W.sub(0)
+# This way the association with the mixed subspace is preserved
+# Declaring it to the BDM space directly is NOT the same and would cause the application of the BC during the later solve to fail
+
+
+w = Function(W)
+
+# solve the linear weak problem a == L for w under the BC's
+
+solve(a == L, w,  bcs = [bc0, bc1])
+
+# Extract the components sigma and u on each of the subspaces with split
+
+sigma, u = w.subfunctions
+
+
+# Write the component of the solution corresponding to the primal variable on the DG space to a file
+# in the VTK format for later inspection w/ paraview
+
+File("poission_mixed.pvd").write(u)
+
+
+# create a plot
+
+try:
+    import matplotlib.pyplot as plt
+except:
+    warning("Matplotlib not imported")
+
+try:
+
+    fig, axes = plt.subplots()
+    print('First line ok')
+    print('plt ok')
+    colours = tripcolor(u, axes = axes)
+    print('contours ok')
+    print('axes ok')
+    print('Second line ok')
+    fig.colorbar(colours)
+    fig.suptitle("Solution Approximation")
+    print('Third line ok')
+    print()
+
+except Exception as e:
+    warning('Cannot plot figure. Error msg "%s"' %e)
+
+try:
+    plt.show()
+
+except Exception as e:
+    warning("Cannot show figure. Error msg: '%s'" %e)
+
+
