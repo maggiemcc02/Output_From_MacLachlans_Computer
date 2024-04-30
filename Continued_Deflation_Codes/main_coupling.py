@@ -123,7 +123,7 @@ for i in range(len(chosen_sols)):
 
   str_eps = str_eps_i.replace('0.', '')
 
-  my_plot = 'Solution_' + str(i+1) + '_at_eps_' + str_eps + '.pdf'
+  my_plot = 'April_30_2024_Solution_' + str(i+1) + '_at_eps_' + str_eps + '.pdf'
 
   plt.figure()
   plt.plot(chosen_mesh[i], chosen_sols[i], 'blue')
@@ -150,7 +150,7 @@ for i in range(len(chosen_sols)):
 
 
 
-cont_defl_results = continued_deflation(eps_list,  chosen_sols, chosen_mesh, guess, mesh, uni_grid, M_calc_optimal_L2, boor_tol, physical_tol, N, alpha, power, u_0, u_n, guess_list, damping, my_path)
+# cont_defl_results = continued_deflation(eps_list,  chosen_sols, chosen_mesh, guess, mesh, uni_grid, M_calc_optimal_L2, boor_tol, physical_tol, N, alpha, power, u_0, u_n, guess_list, damping, my_path)
 
 
 
