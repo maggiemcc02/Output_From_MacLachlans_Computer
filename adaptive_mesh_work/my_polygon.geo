@@ -1,0 +1,14 @@
+Point(1) = {0,  0, 0, 0.5};
+Point(2) = {0, 1, 0, 0.5};
+Point(3) = { 1, 1, 0, 0.5};
+Point(4) = { 1,  1/2, 0, 0.5};
+Line(1) = {1, 2};
+Line(2) = {2, 3};
+Line(3) = {3, 4};
+Line(4) = {4, 1};
+Curve Loop( 9) = {1, 2, 3, 4};
+Plane Surface(1) = {9, 10};
+Physical Curve("HorEdges", 11) = {2, 4};
+Physical Curve("VerEdges", 12) = {1, 3};
+Physical Surface("PunchedDom", 3) = {2};
+Physical Surface("Disc", 4) = {1};

@@ -1,0 +1,322 @@
+# In this file I will solve laplaces equation twice (with differant boundary conditions)
+# to solve the simplest mesh pde
+# In particular, I am solving for the inverse coordinate transformations : xi = xi(x, y) and eta = eta(x, y)
+# Such transformations are the solutions to lapace's equation:
+# (1) xi_{xx} + xi_{yy} = 0 with some boundary conditions
+# (2) eta_{xx} + eta_{yy} = 0 with some boundary conditions
+
+# since these equations are independent of one another, I can solve each on their own using firedrake
+# To do so, I first will formulate the weak form of the problems
+# Depending on the boundary conditions, I will either declare them in the script and/or incorporate them into the weak problem (vanishing terms)
+# Using the weak form I will define the bilinear and linear forms and pass them too firedrakes "solve( a == L, ...)"
+# finally, I will somehow save and plot the results
+
+
+# import fire drake
+
+from firedrake import *
+import numpy as np
+
+# set the mesh
+
+mesh = UnitSquareMesh(49, 49)
+
+# set the function space - piecewise linear
+
+V = FunctionSpace(mesh, "CG", 1)
+
+
+
+# access the coordinates
+
+# Access the coordinates of the mesh as a Function object
+coordinates = mesh.coordinates
+
+# Extract the x and y values as separate NumPy arrays
+x_values = coordinates.dat.data[:, 0]
+y_values = coordinates.dat.data[:, 1]
+
+
+print('X coordinates')
+print()
+print(x_values)
+print()
+print()
+
+print('Y coordinates')
+print()
+print(y_values)
+print()
+print()
+
+
+
+#################################################
+# PROBLEM NUMBER (1)
+#################################################
+
+
+
+
+
+
+# set the test and and trial functions
+
+xi_sol  = TrialFunction(V) # kinda like a symbolic sympy function used to declare the pde
+v_xi = TestFunction(V) # the symbolic test function
+
+
+# set the rhs function f
+
+f = Function(V)
+x, y = SpatialCoordinate(mesh)
+f.interpolate(0 *  x + 0 * y)
+
+
+
+# Let's use nonhomougeneous Neumann conditions - xi_n = g(x, y) = x + y 
+# so the weak form is a = inner(grad(xi_sol), grad(v_xi)) * dx and L = (v * g) * dx
+
+
+# define g
+
+g = Function(V)
+g.interpolate(x + y)
+
+
+
+
+# define the bilinear and linear forms
+
+a_xi = ( inner( grad(xi_sol), grad(v_xi) ) ) * dx
+
+#L_xi = ( inner(f, v_xi) + inner( v_xi, g) ) * dx
+
+#L_homo = ( inner(f, v_xi)  ) * dx
+
+L_xi = Constant(0) * v_xi * dx
+
+
+# the conditions
+
+bc1 =  DirichletBC(V, Constant(0.0), 1)
+bc2 = DirichletBC(V, Constant(1.0), 2)
+bc3 = DirichletBC(V, x**2, 3)
+bc4 = DirichletBC(V, x**2, 4)
+
+bcs = [bc1, bc2, bc3, bc4]
+
+
+
+# where to hold the solution
+
+xi_sol = Function(V)
+
+
+# solve the problem
+
+
+solve( a_xi == L_xi  , xi_sol, bcs = bcs )
+
+
+x = SpatialCoordinate(mesh)
+
+
+#exact = xi_sol.interpolate(x[1] - 0.5)
+#print()
+#print(exact)
+#print()
+
+
+solution_xi = xi_sol.vector().get_local()
+
+
+print('Xi Solution')
+print()
+print(solution_xi)
+print()
+print()
+print(len(solution_xi))
+print()
+print()
+
+
+#solution_xi_2 = xi_sol.dat.data
+#print(solution_xi_2)
+#print()
+#print()
+#print(len(solution_xi_2))
+#print()
+#print()
+
+
+
+
+
+################################################
+# PROBLEM NUMBER (2)
+################################################
+
+
+
+
+
+# set the test and and trial functions
+
+eta_sol  = TrialFunction(V) # kinda like a symbolic sympy function used to declare the pde
+v_eta  = TestFunction(V) # the symbolic test function
+
+
+# I will start with the basic homogeneuous Dirichlet conditions
+# so the weak form is a = inner(grad(eta_sol), grad(v_eta)) * dx and L = 0 * dx 
+
+
+h = Function(V)
+h.interpolate(x**2 + y**2)
+
+
+
+# define the bilinear and linear forms
+
+a_eta = ( inner( grad(eta_sol), grad(v_eta) ) ) * dx
+
+# L_eta = ( inner(f, v_eta) + inner(v_eta, h)) * dx
+
+
+L_eta = Constant(0) * v_eta * dx
+
+
+# the conditions
+
+bc1 =  DirichletBC(V, y, 1)
+bc2 = DirichletBC(V, y, 2)
+bc3 = DirichletBC(V, Constant(0.0), 3)
+bc4 = DirichletBC(V, Constant(1.0), 4)
+
+bcs = [bc1, bc2, bc3, bc4]
+
+
+
+# where to hold the solution
+
+eta_sol = Function(V)
+
+
+# solve the problem
+
+
+solve( a_eta == L_eta, eta_sol, bcs = bcs)
+
+
+# print the solution
+
+print("eta solution")
+print()
+print()
+
+solution_eta = eta_sol.vector().get_local()
+print(solution_eta)
+print()
+print()
+print(len(solution_eta))
+print()
+print()
+
+
+###########################################
+# Now let's save our results
+###########################################
+
+
+
+
+File("xi_solution.pvd").write(xi_sol)
+
+File("eta_solution.pvd").write(eta_sol)
+
+#File("eta_xi_solutions.pvd").write(xi_sol, eta_sol)
+
+
+
+##########################################
+# Attempt at plotting the results
+##########################################
+
+
+
+
+
+try:
+    import matplotlib.pyplot as plt
+except:
+    warning("Matplotlib not imported")
+
+#try:
+
+    #fig, axes = plt.subplots()
+    #contours = tricontour(xi_sol,  axes = axes)
+    #fig.colorbar(contours)
+    #fig.suptitle("xi Solution")
+
+
+
+#except Exception as e:
+    #warning('Cannot plot figure. Error msg "%s"' %e)
+
+#try:
+    #plt.show()
+
+#except Exception as e:
+    #warning("Cannot show figure. Error msg: '%s'" %e)
+
+
+
+# now plot the eta solution
+
+
+
+try:
+
+    fig, axes = plt.subplots()
+    levels = np.linspace(0, 1, 11)
+    contours = tricontour(eta_sol,  axes = axes, levels = levels)
+    contours2 = tricontour(xi_sol,  axes = axes, levels = levels)
+    fig.colorbar(contours, label = "Eta Colour Bar")
+    fig.colorbar(contours2, label = "Xi Colout Bar")
+    fig.supxlabel('xi')
+    fig.supylabel('eta')
+    fig.suptitle("The eta vs. xi Mesh")
+    
+except Exception as e:
+    warning('Cannot plot figure. Error msg "%s"' %e)
+
+try:
+    plt.show()
+
+except Exception as e:
+    warning("Cannot show figure. Error msg: '%s'" %e)
+
+
+
+
+
+
+#####################################################
+# Let's try some Scipy interpolation!
+#####################################################
+
+
+from scipy.interpolate import interp2D
+
+
+try:
+
+    x_interp = interp2D(solution_xi, solution_eta, x_values)
+
+except Exception as e:
+    
+    warning("Interpolant didn't work because :  '%s'" %e)
+
+
+
+

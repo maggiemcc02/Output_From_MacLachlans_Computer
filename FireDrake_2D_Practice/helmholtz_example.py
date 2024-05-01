@@ -58,6 +58,12 @@ solve( a == l, u, solver_parameters = {'ksp_type':'cg', 'pc_type': 'none'})
 # we instruct PETSc to employ the conjugate gradient method
 
 
+print("printing the solution")
+print(u)
+print()
+print()
+
+
 # save the ouput file
 
 File('helmholtz.pvd').write(u)
