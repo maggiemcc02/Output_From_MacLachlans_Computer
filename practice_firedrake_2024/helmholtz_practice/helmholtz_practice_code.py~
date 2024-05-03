@@ -1,0 +1,110 @@
+# In this file I am redoing the helmholtz tutorial on firedrake
+# May 2 2024
+
+
+# import firedrake
+
+from firedrake import *
+from firedrake.output import VTKFile #for writing results to pvd file
+from firedrake.__future__ import interpolate
+
+
+# create 10x10 unit square mesh
+
+mesh = UnitSquareMesh(10,10)
+
+
+# create function space
+# Piecewise linear polynomials that are continuous between elements
+
+V = FunctionSpace(mesh, "Lagrange", 1)
+
+
+# specify the test and trial functions
+
+u = TrialFunction(V)
+v = TestFunction(V)
+
+
+
+# create the rhs
+
+x,y = SpatialCoordinate(mesh) # pull out x and y
+
+f = (1+8*pi*pi)*cos(2*pi*x)*cos(2*pi*y)
+
+
+# create the bilinear and linear forms
+
+
+a = (dot ( grad(v),grad(u) ) + v*u ) * dx #bilinear
+
+L = f * v * dx
+
+
+# let uh hold the solution
+
+uh = Function(V)
+
+
+# solve
+
+solve( a == L , uh, solver_parameters = {'ksp_type':'cg', 'pc_type':'none'} )
+
+
+# save result in pvd file
+
+
+VTKFile("helmholtz_May2024.pvd").write(uh)
+
+# plot
+
+try:
+    import matplotlib.pyplot as plt
+except:
+    warning("Matplotlib not imported")
+
+# pseudocolour plot
+
+try:
+    from firedrake.pyplot import tripcolor, tricontour
+
+    fig, axes = plt.subplots()
+
+    colors = tripcolor(uh, axes = axes, cmap = 'coolwarm')
+
+    fig.colorbar(colors)
+
+except Exception as e:
+
+    warning("Cannot plot figure. Error msg: '%s'" % e)
+
+
+# show the image
+
+try:
+    plt.show()
+except Exception as e:
+    warning("Cannot show figure. Error msg : '%s'" % e)
+
+
+#check the L2 norm (integral version)
+
+#f.interpolate( cos(x*pi*2) * cos(y*pi*2) ) # known soln
+#print(sqrt(assemble(dot(uh-f, uh-f)*dx)))
+#print()
+
+
+# plot difference
+
+u_exact =  cos(x*pi*2) * cos(y*pi*2)
+
+difference = assemble(interpolate(u_exact, V)-uh)
+fig, axes = plt.subplots()
+diff_plot = tripcolor(difference, axes = axes , cmap = 'coolwarm')
+fig.colorbar(diff_plot)
+
+try:
+    plt.show()
+except Exception as e:
+    warning("Cannot show figure. Error msg : '%s'" % e)
