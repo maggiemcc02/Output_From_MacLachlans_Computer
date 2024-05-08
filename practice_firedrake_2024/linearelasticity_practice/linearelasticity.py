@@ -1,0 +1,77 @@
+# In this code I do the linear elasticity tutorial for firedrake
+
+
+# import firedrake 
+
+from firedrake import *
+import  matplotlib.pyplot  as plt
+
+
+# set up
+
+length = 1
+width = 0.2
+mesh = RectangleMesh(40, 20, length, width)
+
+# FunctionSpace (vector function space)
+# 2D
+
+V = VectorFunctionSpace(mesh, "Lagrange", 1)
+
+# BC for Gamma_D
+
+bc = DirichletBC(V, Constant([0, 0]), 1)
+
+
+# define material parameters
+# deformation due to gravity described with load vector
+# f = (0, -rho*g)
+
+rho = Constant(0.01)
+g = Constant(1)
+
+f = as_vector([0, -rho*g])
+
+mu = Constant(1)
+lambda_ = Constant(0.25)
+
+Id = Identity(mesh.geometric_dimension()) #2x2 identity tensor
+
+
+# define stress tensor sigma and strain rate tensor epsilon
+
+
+def epsilon(u): #strain rate
+    return 0.5 * ( grad(u) + grad(u).T )
+
+
+def sigma(u): #stress tensor
+    return lambda_ * div(u) * Id + 2*mu*epsilon(u)
+
+
+# solve variational problem
+
+u = TrialFunction(V)
+v = TestFunction(V)
+
+a = inner(sigma(u), epsilon(v)) * dx
+L = dot(f, v) * dx
+
+
+uh = Function(V)
+
+solve( a == L , uh, bcs = bc , solver_parameters = {'ksp_monitor' : None } )
+
+
+# visualize the mesh
+
+displaced_coordinates = interpolate(SpatialCoordinate(mesh) + uh, V)
+displaced_mesh = Mesh(displaced_coordinates)
+
+
+from firedrake.pyplot import triplot
+
+fig,axes = plt.subplots()
+triplot(displaced_mesh, axes=axes)
+axes.set_aspect('equal')
+plt.show()

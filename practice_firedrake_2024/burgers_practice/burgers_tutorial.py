@@ -1,0 +1,78 @@
+# code to solve burgers equation via firedrake
+
+
+# import firedrake
+
+from firedrake import *
+
+
+# create mesh
+
+n=30
+mesh = UnitSquareMesh(n,n)
+
+# Function Space : degree 2 continuous Lagrange polynomials
+
+V = VectorFunctionSpace(mesh, "CG", 2)
+V_out = VectorFunctionSpace(mesh, "CG", 1) # needed for output
+
+
+# Solution functions for current and next timestep
+
+u_ = Function(V, name = "Velocity") #current
+u = Function(V, name = "VeclocityNext") # next
+
+
+# test function
+
+v = TestFunction(V)
+
+# No trial function for the nonlinear problem
+# one is created in nonlinear solver when problem is differentiated
+
+#  initial condition
+
+x = SpatialCoordinate(mesh)
+ic = project(as_vector([sin(pi*x[0]), 0]), V)
+
+# start with current value of u set to ic
+# use ic as our guess for the next u
+
+u_.assign(ic)
+u.assign(ic)
+
+
+# set nu to a small constant value
+
+nu = 0.0001
+
+# timestep
+
+timestep = 1.0/n
+
+
+# define residual
+
+
+F = ( inner((u-u_)/timestep, v ) + inner( dot(u, nabla_grad(u)), v) + nu * inner(grad(u) , grad(v)) ) * dx
+
+
+# output
+
+outfile = VTKFile("burgers.pvd")
+outfile.write(project(u, V_out, name = "Velocity")) # project to a linear space
+
+
+# loop over time steps, solve equation at each time
+# default solver parameters use - apply full LU decomp as preconditioner
+
+
+t = 0.0
+end = 0.5
+
+while ( t <= end ):
+
+    solve( F == 0 , u )
+    u_.assign(u)
+    t += timestep
+    outfile.write(project(u, V_out, name = "Velocity"))
